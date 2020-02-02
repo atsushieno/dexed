@@ -124,11 +124,13 @@ void DexedAudioProcessorEditor::loadCart(File file) {
     }
     
     if ( rc != 0 ) {
+#if !JUCE_EMSCRIPTEN
         rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
                                           "This sysex file is not for the DX7 or it is corrupted. "
                                           "Do you still want to load this file as random data ?");
         if ( rc == 0 )
             return;
+#endif
     }
     
     processor->loadCartridge(cart);
@@ -144,6 +146,7 @@ void DexedAudioProcessorEditor::saveCart() {
     File startFileName = processor->activeFileCartridge.exists() ? processor->activeFileCartridge : processor->dexedCartDir;
 
     FileChooser fc ("Export DX sysex...", processor->dexedCartDir, "*.syx;*.SYX", 1);
+#if JUCE_MODAL_LOOPS_PERMITTED
     if ( fc.browseForFileToSave(true) ) {
         if ( ! processor->currentCart.saveVoice(fc.getResults().getReference(0)) ) {
             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
@@ -151,6 +154,9 @@ void DexedAudioProcessorEditor::saveCart() {
                                               "Unable to write: " + fc.getResults().getReference(0).getFullPathName());
         }
     }
+#else
+	jassertfalse; // FIXME: implement
+#endif
 }
 
 void DexedAudioProcessorEditor::parmShow() {
@@ -164,8 +170,12 @@ void DexedAudioProcessorEditor::parmShow() {
     window.addCustomComponent(&param);
     window.addButton("OK", 0);
     window.addButton("Cancel" ,1);
+#if JUCE_MODAL_LOOPS_PERMITTED
     if ( window.runModalLoop() != 0 )
         return;
+#else
+    window.setVisible(true);
+#endif
     
     bool ret = param.getDialogValues(processor->controllers, processor->sysexComm, &tp, &processor->showKeyboard);
     processor->setEngineType(tp);
@@ -277,11 +287,18 @@ void DexedAudioProcessorEditor::storeProgram() {
         dialog.addButton("OK", 0, KeyPress(KeyPress::returnKey));
         dialog.addButton("CANCEL", 1, KeyPress(KeyPress::escapeKey));
         dialog.addButton("EXTERNAL FILE", 2, KeyPress());
+#if JUCE_MODAL_LOOPS_PERMITTED
         int response = dialog.runModalLoop();
+#else
+        dialog.setVisible(true);
+        int response = 1; // FIXME
+        jassertfalse;
+#endif
 
         if ( response == 2 ) {
             FileChooser fc("Destination Sysex", processor->dexedCartDir, "*.syx;*.SYX;*.*", 1);
 
+#if JUCE_MODAL_LOOPS_PERMITTED
             if ( fc.browseForFileToOpen() ) {
                 if ( externalFile != NULL ) 
                     delete externalFile;
@@ -291,6 +308,9 @@ void DexedAudioProcessorEditor::storeProgram() {
                     continue;
                 AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Read error", "Unable to read file");
             }
+#else
+	jassertfalse; // FIXME: implement
+#endif
         }
 
         if ( response == 0 ) {
@@ -315,8 +335,12 @@ void DexedAudioProcessorEditor::storeProgram() {
                     File destination = processor->activeFileCartridge;
                     if ( action == 1 ) {
                         FileChooser fc("Destination Sysex", processor->dexedCartDir, "*.syx;*.SYX", 1);
+#if JUCE_MODAL_LOOPS_PERMITTED
                         if ( ! fc.browseForFileToSave(true) )
                             break;
+#else
+	jassertfalse; // FIXME: implement
+#endif
                         destination = fc.getResult();
                     }
                     
@@ -366,6 +390,10 @@ public :
 
 void DexedAudioProcessorEditor::discoverMidiCC(Ctrl *ctrl) {
     MidiCCListener ccListener(this, ctrl);
+#if JUCE_MODAL_LOOPS_PERMITTED
     ccListener.runModalLoop();
+#else
+    ccListener.setVisible(true);
+#endif
 }
 

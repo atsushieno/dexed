@@ -357,7 +357,7 @@ void DexedAudioProcessor::setStateInformation(const void* source, int sizeInByte
     // whose contents will have been created by the getStateInformation() call.
     
     // used to LOAD plugin state
-    ScopedPointer<XmlElement> root(getXmlFromBinary(source, sizeInBytes));
+    std::unique_ptr<XmlElement> root(getXmlFromBinary(source, sizeInBytes));
     
     if (root == nullptr) {
         TRACE("unkown state format");

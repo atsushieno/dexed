@@ -527,6 +527,7 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
         popup.addSeparator();
         popup.addItem(4, "Send current program to DX7");
 
+#if JUCE_MODAL_LOOPS_PERMITTED
         switch(popup.show()) {
             case 1:
                 processor->copyToClipboard(internalOp);
@@ -544,6 +545,9 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
                 processor->sendCurrentSysexProgram();
             break;
         }
+#else
+        jassertfalse; // FIXME: implement
+#endif
 
     }
 }

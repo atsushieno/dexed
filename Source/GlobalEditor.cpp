@@ -562,7 +562,11 @@ void GlobalEditor::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_aboutButton] -- add your button handler code here..
         AboutBox about(this->getParentComponent());
+#if JUCE_MODAL_LOOPS_PERMITTED
         about.runModalLoop();
+#else
+        jassertfalse; // FIXME: implement
+#endif
         //[/UserButtonCode_aboutButton]
     }
 
@@ -644,8 +648,12 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
     if ( e.mods.isPopupMenu()) {
         PopupMenu popup;
         popup.addItem(1, "Send current program to DX7");
+#if JUCE_MODAL_LOOPS_PERMITTED
         if ( popup.show() == 1 )
            processor->sendCurrentSysexProgram();
+#else
+        jassertfalse; // FIXME: imeplement
+#endif
     }
 }
 //[/MiscUserCode]

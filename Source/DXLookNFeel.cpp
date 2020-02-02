@@ -78,7 +78,7 @@ DXLookNFeel::DXLookNFeel() {
     if ( ! dexedTheme.existsAsFile() )
         return;
     
-    XmlElement *root = XmlDocument::parse(dexedTheme);
+    XmlElement *root = XmlDocument::parse(dexedTheme).release();
     if ( root == NULL )
         return;
 

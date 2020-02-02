@@ -167,10 +167,14 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
     }
     
     if ( buttonThatWasClicked == loadButton ) {
-        FileChooser fc ("Import original DX sysex...", File::nonexistent, "*.syx;*.SYX;*.*", 1);
+        FileChooser fc ("Import original DX sysex...", File{}, "*.syx;*.SYX;*.*", 1);
         
+#if JUCE_MODAL_LOOPS_PERMITTED
         if ( fc.browseForFileToOpen())
             mainWindow->loadCart(fc.getResult());
+#else
+	jassertfalse; // FIXME: implement
+#endif
         return;
     }
     
@@ -223,6 +227,7 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
         menu.addSeparator();
         menu.addItem(1020, "Refresh");
         
+#if JUCE_MODAL_LOOPS_PERMITTED
         switch(menu.show()) {
         case 1000:
             file.revealToUser();
@@ -234,6 +239,9 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
             cartBrowserList->refresh();
             break;
         }
+#else
+	jassertfalse; // FIXME: implement
+#endif
         return;
     }
 }
@@ -283,6 +291,7 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
     if ( source == activeCart )
         menu.addItem(1010, "Send current sysex cartridge to DX7");
 
+#if JUCE_MODAL_LOOPS_PERMITTED
     switch(menu.show())  {
         case 1000:
             uint8_t unpackPgm[161];
@@ -304,6 +313,9 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
             mainWindow->processor->sendCurrentSysexCartridge();
             break;
     }
+#else
+    jassertfalse; // FIXME: implement
+#endif
 
 }
 

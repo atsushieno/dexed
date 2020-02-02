@@ -73,7 +73,7 @@ bool SysexComm::setInput(String target) {
         return false;
     }
 
-    input = MidiInput::openDevice(idx, listener);
+    input = MidiInput::openDevice(idx, listener).release();
     if ( input == NULL ) {
         TRACE("unable to open %s", target.toRawUTF8());
         return false;
@@ -111,7 +111,7 @@ bool SysexComm::setOutput(String target) {
         return false;
     }
     
-    output = MidiOutput::openDevice(idx);
+    output = MidiOutput::openDevice(idx).release();
     if ( output == NULL ) {
         TRACE("unable to open %s", target.toRawUTF8());
         return false;

@@ -293,6 +293,7 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
         }
         popup.addItem(2, "Clear midi CC mapping");
 
+#if JUCE_MODAL_LOOPS_PERMITTED
         switch(popup.show()) {
             case 1:
                 parent->mappedMidiCC.removeValue(this);
@@ -313,6 +314,9 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
                 dexedEditor->discoverMidiCC(this);
                 break;
         }
+#else
+	jassertfalse; // FIXME: implement
+#endif
     }
 }
 
