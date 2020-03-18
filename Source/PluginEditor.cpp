@@ -124,7 +124,7 @@ void DexedAudioProcessorEditor::loadCart(File file) {
     }
     
     if ( rc != 0 ) {
-#if !JUCE_EMSCRIPTEN
+#if !JUCE_EMSCRIPTEN && !JUCE_ANDROID
         rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
                                           "This sysex file is not for the DX7 or it is corrupted. "
                                           "Do you still want to load this file as random data ?");
