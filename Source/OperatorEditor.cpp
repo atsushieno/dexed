@@ -527,7 +527,8 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
         popup.addSeparator();
         popup.addItem(4, "Send current program to DX7");
 
-        switch(popup.show()) {
+        std::function<void(int)> callback = [&](int ret) {
+        switch(ret) {
             case 1:
                 processor->copyToClipboard(internalOp);
             break;
@@ -544,7 +545,9 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
                 processor->sendCurrentSysexProgram();
             break;
         }
-
+        };
+        PopupMenu::Options options{};
+        popup.showMenuAsync(options, callback);
     }
 }
 

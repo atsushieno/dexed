@@ -125,11 +125,15 @@ void DexedAudioProcessorEditor::loadCart(File file) {
     }
     
     if ( rc != 0 ) {
+        #if ANDROID
+        return;
+        #else
         rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
                                           "This sysex file is not for the DX7 or it is corrupted. "
                                           "Do you still want to load this file as random data ?");
         if ( rc == 0 )
             return;
+        #endif
     }
     
     processor->loadCartridge(cart);
@@ -142,6 +146,9 @@ void DexedAudioProcessorEditor::loadCart(File file) {
 }
 
 void DexedAudioProcessorEditor::saveCart() {
+#if JUCE_ANDROID
+    juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
     File startFileName = processor->activeFileCartridge.exists() ? processor->activeFileCartridge : processor->dexedCartDir;
 
     FileChooser fc ("Export DX sysex...", processor->dexedCartDir, "*.syx;*.SYX", 1);
@@ -152,6 +159,7 @@ void DexedAudioProcessorEditor::saveCart() {
                                               "Unable to write: " + fc.getResults().getReference(0).getFullPathName());
         }
     }
+#endif
 }
 
 void DexedAudioProcessorEditor::tuningShow() {
@@ -319,12 +327,19 @@ void DexedAudioProcessorEditor::storeProgram() {
             dialog.addComboBox("SaveAction", saveAction, "Store Action");
         }
                 
+#if ANDROID
+        int response = 0;
+#else
         dialog.addButton("OK", 0, KeyPress(KeyPress::returnKey));
         dialog.addButton("CANCEL", 1, KeyPress(KeyPress::escapeKey));
         dialog.addButton("EXTERNAL FILE", 2, KeyPress());
         int response = dialog.runModalLoop();
+#endif
 
         if ( response == 2 ) {
+#if JUCE_ANDROID
+            juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
             FileChooser fc("Destination Sysex", processor->dexedCartDir, "*.syx;*.SYX;*.*", 1);
 
             if ( fc.browseForFileToOpen() ) {
@@ -336,6 +351,7 @@ void DexedAudioProcessorEditor::storeProgram() {
                     continue;
                 AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Read error", "Unable to read file");
             }
+#endif
         }
 
         if ( response == 0 ) {
@@ -359,10 +375,14 @@ void DexedAudioProcessorEditor::storeProgram() {
                 if ( action > 0 ) {                  
                     File destination = processor->activeFileCartridge;
                     if ( action == 1 ) {
+#if JUCE_ANDROID
+                        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
                         FileChooser fc("Destination Sysex", processor->dexedCartDir, "*.syx;*.SYX", 1);
                         if ( ! fc.browseForFileToSave(true) )
                             break;
                         destination = fc.getResult();
+#endif
                     }
                     
                     processor->currentCart.saveVoice(destination);
@@ -410,8 +430,12 @@ public :
 };
 
 void DexedAudioProcessorEditor::discoverMidiCC(Ctrl *ctrl) {
+#if ANDROID
+    AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
     MidiCCListener ccListener(this, ctrl);
     ccListener.runModalLoop();
+#endif
 }
 
 bool DexedAudioProcessorEditor::isInterestedInFileDrag (const StringArray &files)

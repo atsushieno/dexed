@@ -294,16 +294,22 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
         }
         popup.addItem(2, "Clear midi CC mapping");
 
-        switch(popup.show()) {
+        std::function<void(int)> callback = [&](int ret) {
+        switch(ret) {
             case 1:
                 parent->mappedMidiCC.removeValue(this);
                 parent->savePreference();
                 break;
             case 2:
-                if ( AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Confirm", "Clear midi mapping for all controller change (CC) messages?", "YES", "NO", "CANCEL") ) {
+                #if !ANDROID
+                if ( AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Confirm", "Clear midi mapping for all controller change (CC) messages?", "YES", "NO", "CANCEL" )) {
+                #endif
                     parent->mappedMidiCC.clear();
                     parent->savePreference();
+                #if !ANDROID
                 }
+                #endif
+                break;
                 break;
             case 3:
                 AudioProcessorEditor *editor = parent->getActiveEditor();
@@ -314,6 +320,9 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
                 dexedEditor->discoverMidiCC(this);
                 break;
         }
+        };
+        PopupMenu::Options options{};
+        popup.showMenuAsync(options, callback);
     }
 }
 

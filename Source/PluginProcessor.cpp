@@ -811,12 +811,16 @@ void DexedAudioProcessor::retuneToStandard()
 }
 
 void DexedAudioProcessor::applySCLTuning() {
+#if ANDROID
+    AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
     FileChooser fc( "Please select an SCL File", File(), "*.scl" );
     if( fc.browseForFileToOpen() )
     {
         auto s = fc.getResult();
         applySCLTuning(s);
     }
+#endif
 }
 
 void DexedAudioProcessor::applySCLTuning(File s) {
@@ -840,12 +844,16 @@ void DexedAudioProcessor::applySCLTuning(std::string sclcontents) {
 }
 
 void DexedAudioProcessor::applyKBMMapping() {
+#if ANDROID
+    AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
     FileChooser fc( "Please select an KBM File", File(), "*.kbm" );
     if( fc.browseForFileToOpen() )
     {
         auto s = fc.getResult();
         applyKBMMapping(s);
     }
+#endif
 }
 
 void DexedAudioProcessor::applyKBMMapping( File s )

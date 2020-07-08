@@ -566,7 +566,7 @@ void GlobalEditor::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_aboutButton] -- add your button handler code here..
         AboutBox about(this->getParentComponent());
-        about.runModalLoop();
+        //about.runModalLoop();
         //[/UserButtonCode_aboutButton]
     }
 
@@ -650,7 +650,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
         PopupMenu popup;
         popup.addItem(1, "Send current program to DX7");
 
-        auto p = popup.show();
+        std::function<void(int)> callback = [&](int p) {
         switch( p )
         {
         case 1:
@@ -659,6 +659,9 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
         default:
             break;
         }
+        };
+        PopupMenu::Options options{};
+        popup.showMenuAsync(options, callback);
     }
 }
 //[/MiscUserCode]

@@ -167,10 +167,14 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
     }
     
     if ( buttonThatWasClicked == loadButton ) {
+#if JUCE_ANDROID
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::AlertIconType::WarningIcon, "NOT SUPPORTED", "This feature is not supported on Android...");
+#else
         FileChooser fc ("Import original DX sysex...", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), "*.syx;*.SYX;*.*", 1);
         
         if ( fc.browseForFileToOpen())
             mainWindow->loadCart(fc.getResult());
+#endif
         return;
     }
     
@@ -223,17 +227,21 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
         menu.addSeparator();
         menu.addItem(1020, "Refresh");
         
-        switch(menu.show()) {
-        case 1000:
-            file.revealToUser();
-            break;
-        case 1010 :
-            mainWindow->processor->sendSysexCartridge(file);
-            break;
-        case 1020:
-            cartBrowserList->refresh();
-            break;
-        }
+        std::function<void(int)> callback = [&](int ret) {
+            switch (ret) {
+                case 1000:
+                    file.revealToUser();
+                    break;
+                case 1010 :
+                    mainWindow->processor->sendSysexCartridge(file);
+                    break;
+                case 1020:
+                    cartBrowserList->refresh();
+                    break;
+            }
+        };
+        PopupMenu::Options options{};
+        menu.showMenuAsync(options, callback);
         return;
     }
 }
@@ -283,7 +291,8 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
     if ( source == activeCart )
         menu.addItem(1010, "Send current sysex cartridge to DX7");
 
-    switch(menu.show())  {
+    std::function<void(int)> callback = [&](int ret) {
+    switch(ret)  {
         case 1000:
             uint8_t unpackPgm[161];
             
@@ -304,6 +313,9 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
             mainWindow->processor->sendCurrentSysexCartridge();
             break;
     }
+    };
+    PopupMenu::Options options{};
+    menu.showMenuAsync(options, callback);
 
 }
 
